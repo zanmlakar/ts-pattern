@@ -476,7 +476,12 @@ export function record(
             ...getSelectionKeys(patternKey),
             ...getSelectionKeys(patternValue),
           ].forEach((key) => {
-            selections[key] = [];
+            Object.defineProperty(selections, key, {
+              value: [],
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
           });
 
           const matched = recordEvery(value, (k, v) => {

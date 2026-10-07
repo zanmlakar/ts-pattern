@@ -394,6 +394,40 @@ describe('P.record', () => {
       expect(result).toEqual(['a', 'b']);
     });
 
+    it('should preserve __proto__ key selections for empty and populated records', () => {
+      const inputs: Record<string, number>[] = [{}, { a: 1, b: 2 }];
+
+      for (const input of inputs) {
+        const result = match(input)
+          .with(P.record(P.string.select('__proto__'), P.number), (keys) => {
+            type t = Expect<Equal<typeof keys, { __proto__: string[] }>>;
+            return keys;
+          })
+          .otherwise(() => 'no match');
+
+        expect(result).toStrictEqual({ ['__proto__']: Object.keys(input) });
+        expect(Object.keys(result)).toEqual(['__proto__']);
+        expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+      }
+    });
+
+    it('should preserve __proto__ value selections for empty and populated records', () => {
+      const inputs: Record<string, number>[] = [{}, { a: 1, b: 2 }];
+
+      for (const input of inputs) {
+        const result = match(input)
+          .with(P.record(P.number.select('__proto__')), (values) => {
+            type t = Expect<Equal<typeof values, { __proto__: number[] }>>;
+            return values;
+          })
+          .otherwise(() => 'no match');
+
+        expect(result).toStrictEqual({ ['__proto__']: Object.values(input) });
+        expect(Object.keys(result)).toEqual(['__proto__']);
+        expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+      }
+    });
+
     it('should select all values as an array when select is used in the value position', () => {
       const input: unknown = { a: 1, b: 2 };
       const result = match(input)
